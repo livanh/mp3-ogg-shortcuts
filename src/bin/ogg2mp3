@@ -1,0 +1,70 @@
+#!/bin/bash
+
+INFILE="$1"
+BASENAME=${1%.*}
+OUTFILE=$BASENAME.mp3
+TMPDIR=/tmp/.ogg2mp3-$(dd if=/dev/urandom bs=1 count=2 status=none | od -A n -t x2 |cut -d ' ' -f 2)
+
+if [ -f "$OUTFILE" ]; then exit 0; fi
+
+mkdir "$TMPDIR"
+mkfifo "$TMPDIR/fifo.wav"
+oggdec "$INFILE" -o "$TMPDIR/fifo.wav" | lame -V2 "$TMPDIR/fifo.wav" "$OUTFILE"
+
+# Copy vorbis comment tags, if available
+TITLE=$(vorbiscomment "$INFILE" | grep title= | cut -d = -f 2-)
+ARTIST=$(vorbiscomment "$INFILE" | grep artist= | cut -d = -f 2-)
+ALBUM=$(vorbiscomment "$INFILE" | grep album= | cut -d = -f 2-)
+TRACKNUMBER=$(vorbiscomment "$INFILE" | grep tracknumber= | cut -d = -f 2-)
+GENRE=$(vorbiscomment "$INFILE" | grep genre= | cut -d = -f 2-)
+YEAR=$(vorbiscomment "$INFILE" | grep date= | cut -d = -f 2-)
+COMMENT=$(vorbiscomment "$INFILE" | grep comment= | cut -d = -f 2-)
+COPYRIGHT=$(vorbiscomment "$INFILE" | grep copyright= | cut -d = -f 2-)
+PUBLISHER=$(vorbiscomment "$INFILE" | grep publisher= | cut -d = -f 2-)
+#CONTACT=$(vorbiscomment "$INFILE" | grep WCOM= | cut -d = -f 2-)
+LICENSE=$(vorbiscomment "$INFILE" | grep license= | cut -d = -f 2-)
+WEBSITE=$(vorbiscomment "$INFILE" | grep website= | cut -d = -f 2-)
+
+mid3v2 -t "$TITLE" -a "$ARTIST" -A "$ALBUM" -T "$TRACKNUMBER" -g "$GENRE" -y "$YEAR" -c "$COMMENT" "$OUTFILE" --TCOP "$COPYRIGHT" --TPUB "$PUBLISHER" --WCOP "$LICENSE" --WOAS "$WEBSITE"
+
+# Copy album art, if available
+COVER_TYPES=(
+	OTHER
+	ICON
+	OTHER_ICON
+	FRONT_COVER
+	BACK_COVER
+	LEAFLET
+	MEDIA
+	LEAD_ARTIST
+	ARTIST
+	CONDUCTOR
+	BAND
+	COMPOSER
+	LYRICIST
+	RECORDING_LOCATION
+	DURING_RECORDING
+	DURING_PERFORMANCE
+	VIDEO
+	BRIGHT_COLORED_FISH
+	ILLUSTRATION
+	BAND_LOGO
+	PUBLISHER_LOGO
+)
+
+for a in $(vorbiscomment "$INFILE" | grep METADATA_BLOCK_PICTURE= | cut -d = -f 2- ); do 
+	COVER_TYPE=$(echo $a | base64 -d | mbp-decode -n 2>/dev/null)
+	MIME_TYPE=$(echo $a | base64 -d | mbp-decode -m 2>/dev/null)
+	echo found image, type $COVER_TYPE \(${COVER_TYPES[$COVER_TYPE]}, $MIME_TYPE\)
+	if [ "$MIME_TYPE" == "image/jpeg" ]; then
+		IMAGE_EXT=jpg
+	else if [ "$MIME_TYPE" == "image/png" ]; then
+		IMAGE_EXT=png
+	fi
+	fi
+	echo $a | base64 -d | mbp-decode -p -o "$TMPDIR/${COVER_TYPES[$COVER_TYPE]}.$IMAGE_EXT"
+	eyeD3 --add-image="$TMPDIR/${COVER_TYPES[$COVER_TYPE]}.$IMAGE_EXT"\:${COVER_TYPES[$COVER_TYPE]} "$OUTFILE"
+
+done
+
+rm -R "$TMPDIR"

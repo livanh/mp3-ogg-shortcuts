@@ -1,0 +1,81 @@
+#!/bin/bash
+
+INFILE="$1"
+BASENAME=${1%.*}
+OUTFILE=$BASENAME.ogg
+TMPDIR=/tmp/.mp32ogg-$(dd if=/dev/urandom bs=1 count=2 status=none | od -A n -t x2 |cut -d ' ' -f 2)
+
+if [ -f "$OUTFILE" ]; then exit 0; fi
+
+madplay "$INFILE" -b 24 -o wave:- | oggenc - -q 5 -o "$OUTFILE"
+
+# Copy id3 tags, if available
+TITLE=$(mid3v2 "$INFILE" | grep TIT2= | cut -d = -f 2-)
+ARTIST=$(mid3v2 "$INFILE" | grep TPE1= | cut -d = -f 2-)
+ALBUM=$(mid3v2 "$INFILE" | grep TALB= | cut -d = -f 2-)
+TRACKNUMBER=$(mid3v2 "$INFILE" | grep TRCK= | cut -d = -f 2-)
+GENRE=$(mid3v2 "$INFILE" | grep TCON= | cut -d = -f 2-)
+YEAR=$(mid3v2 "$INFILE" | grep TDRL= | cut -d = -f 2-)
+COMMENT=$(mid3v2 "$INFILE" | grep COMM= | grep -v "ID3 v1" | cut -d = -f 4-)
+COPYRIGHT=$(mid3v2 "$INFILE" | grep TCOP= | cut -d = -f 2-)
+PUBLISHER=$(mid3v2 "$INFILE" | grep TPUB= | cut -d = -f 2-)
+CONTACT=$(mid3v2 "$INFILE" | grep WCOM= | cut -d = -f 2-)
+LICENSE=$(mid3v2 "$INFILE" | grep WCOP= | cut -d = -f 2-)
+WEBSITE=$(mid3v2 "$INFILE" | grep WOAS= | cut -d = -f 2-)
+
+vorbiscomment "$OUTFILE" -w -t "TITLE=$TITLE" -t "ARTIST=$ARTIST" -t "ALBUM=$ALBUM" -t "TRACKNUMBER=$TRACKNUMBER" -t "GENRE=$GENRE" -t "DATE=$YEAR" -t "COMMENT=$COMMENT" -t "COPYRIGHT=$COPYRIGHT" -t "PUBLISHER=$PUBLISHER" -t "LICENSE=$LICENSE" -t "WEBSITE=$WEBSITE"
+
+# Copy album art, if available
+COVERTYPES=(
+	OTHER
+	ICON
+	OTHER_ICON
+	FRONT_COVER
+	BACK_COVER
+	LEAFLET
+	MEDIA
+	LEAD_ARTIST
+	ARTIST
+	CONDUCTOR
+	BAND
+	COMPOSER
+	LYRICIST
+	RECORDING_LOCATION
+	DURING_RECORDING
+	DURING_PERFORMANCE
+	VIDEO
+	BRIGHT_COLORED_FISH
+	ILLUSTRATION
+	BAND_LOGO
+	PUBLISHER_LOGO
+)
+
+mkdir "$TMPDIR"
+eyeD3 -i "$TMPDIR" "$INFILE"
+COVERINDEX=0
+for i in ${COVERTYPES[@]}; do
+
+	if [ -f "$TMPDIR/$i.png"  ]; then
+		echo Adding image "$TMPDIR/$i.png"...
+		printf "METADATA_BLOCK_PICTURE=" > "$TMPDIR/imagetag.txt"
+		mbp-encode "$TMPDIR/$i.png" -t $COVERINDEX | base64 -w 0 >> "$TMPDIR/imagetag.txt"
+		vorbiscomment "$OUTFILE" -a -c "$TMPDIR/imagetag.txt"
+	fi
+	
+	if [ -f "$TMPDIR/$i.jpeg" ]; then
+		echo Adding image "$TMPDIR/$i.jpeg"...
+		printf "METADATA_BLOCK_PICTURE=" > "$TMPDIR/imagetag.txt"
+		mbp-encode "$TMPDIR/$i.jpeg" -t $COVERINDEX | base64 -w 0 >> "$TMPDIR/imagetag.txt"
+		vorbiscomment "$OUTFILE" -a -c "$TMPDIR/imagetag.txt"
+	fi
+	
+	if [ -f "$TMPDIR/$i.jpg"  ]; then
+		echo Adding image "$TMPDIR/$i.jpg"...
+		printf "METADATA_BLOCK_PICTURE=" > "$TMPDIR/imagetag.txt"
+		mbp-encode "$TMPDIR/$i.jpg" -t $COVERINDEX | base64 -w 0 >> "$TMPDIR/imagetag.txt"
+		vorbiscomment "$OUTFILE" -a -c "$TMPDIR/imagetag.txt"
+	fi
+
+	(( COVERINDEX += 1 ))
+done
+rm -R "$TMPDIR"
