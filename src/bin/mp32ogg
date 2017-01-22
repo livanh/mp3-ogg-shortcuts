@@ -51,7 +51,7 @@ COVERTYPES=(
 )
 
 mkdir "$TMPDIR"
-eyeD3 -i "$TMPDIR" "$INFILE"
+eyeD3 --write-images "$TMPDIR" "$INFILE"
 COVERINDEX=0
 for i in ${COVERTYPES[@]}; do
 
