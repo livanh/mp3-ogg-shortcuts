@@ -58,9 +58,8 @@ for a in $(vorbiscomment "$INFILE" | grep --text METADATA_BLOCK_PICTURE= | cut -
 	echo found image, type $COVER_TYPE \(${COVER_TYPES[$COVER_TYPE]}, $MIME_TYPE\)
 	if [ "$MIME_TYPE" == "image/jpeg" ]; then
 		IMAGE_EXT=jpg
-	else if [ "$MIME_TYPE" == "image/png" ]; then
+	elif [ "$MIME_TYPE" == "image/png" ]; then
 		IMAGE_EXT=png
-	fi
 	fi
 	echo $a | base64 -d | mbp-decode -p -o "$TMPDIR/${COVER_TYPES[$COVER_TYPE]}.$IMAGE_EXT"
 	eyeD3 --add-image="$TMPDIR/${COVER_TYPES[$COVER_TYPE]}.$IMAGE_EXT"\:${COVER_TYPES[$COVER_TYPE]} "$OUTFILE"
