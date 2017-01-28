@@ -12,18 +12,18 @@ mkfifo "$TMPDIR/fifo.wav"
 oggdec "$INFILE" -o "$TMPDIR/fifo.wav" | lame -V2 "$TMPDIR/fifo.wav" "$OUTFILE"
 
 # Copy vorbis comment tags, if available
-TITLE=$(vorbiscomment "$INFILE" | grep title= | cut -d = -f 2-)
-ARTIST=$(vorbiscomment "$INFILE" | grep artist= | cut -d = -f 2-)
-ALBUM=$(vorbiscomment "$INFILE" | grep album= | cut -d = -f 2-)
-TRACKNUMBER=$(vorbiscomment "$INFILE" | grep tracknumber= | cut -d = -f 2-)
-GENRE=$(vorbiscomment "$INFILE" | grep genre= | cut -d = -f 2-)
-YEAR=$(vorbiscomment "$INFILE" | grep date= | cut -d = -f 2-)
-COMMENT=$(vorbiscomment "$INFILE" | grep comment= | cut -d = -f 2-)
-COPYRIGHT=$(vorbiscomment "$INFILE" | grep copyright= | cut -d = -f 2-)
-PUBLISHER=$(vorbiscomment "$INFILE" | grep publisher= | cut -d = -f 2-)
-#CONTACT=$(vorbiscomment "$INFILE" | grep WCOM= | cut -d = -f 2-)
-LICENSE=$(vorbiscomment "$INFILE" | grep license= | cut -d = -f 2-)
-WEBSITE=$(vorbiscomment "$INFILE" | grep website= | cut -d = -f 2-)
+TITLE=$(vorbiscomment "$INFILE" | grep --text title= | cut -d = -f 2-)
+ARTIST=$(vorbiscomment "$INFILE" | grep --text artist= | cut -d = -f 2-)
+ALBUM=$(vorbiscomment "$INFILE" | grep --text album= | cut -d = -f 2-)
+TRACKNUMBER=$(vorbiscomment "$INFILE" | grep --text tracknumber= | cut -d = -f 2-)
+GENRE=$(vorbiscomment "$INFILE" | grep --text genre= | cut -d = -f 2-)
+YEAR=$(vorbiscomment "$INFILE" | grep --text date= | cut -d = -f 2-)
+COMMENT=$(vorbiscomment "$INFILE" | grep --text comment= | cut -d = -f 2-)
+COPYRIGHT=$(vorbiscomment "$INFILE" | grep --text copyright= | cut -d = -f 2-)
+PUBLISHER=$(vorbiscomment "$INFILE" | grep --text publisher= | cut -d = -f 2-)
+#CONTACT=$(vorbiscomment "$INFILE" | grep --text WCOM= | cut -d = -f 2-)
+LICENSE=$(vorbiscomment "$INFILE" | grep --text license= | cut -d = -f 2-)
+WEBSITE=$(vorbiscomment "$INFILE" | grep --text website= | cut -d = -f 2-)
 
 mid3v2 -t "$TITLE" -a "$ARTIST" -A "$ALBUM" -T "$TRACKNUMBER" -g "$GENRE" -y "$YEAR" -c "$COMMENT" "$OUTFILE" --TCOP "$COPYRIGHT" --TPUB "$PUBLISHER" --WCOP "$LICENSE" --WOAS "$WEBSITE"
 
@@ -52,7 +52,7 @@ COVER_TYPES=(
 	PUBLISHER_LOGO
 )
 
-for a in $(vorbiscomment "$INFILE" | grep METADATA_BLOCK_PICTURE= | cut -d = -f 2- ); do 
+for a in $(vorbiscomment "$INFILE" | grep --text METADATA_BLOCK_PICTURE= | cut -d = -f 2- ); do 
 	COVER_TYPE=$(echo $a | base64 -d | mbp-decode -n 2>/dev/null)
 	MIME_TYPE=$(echo $a | base64 -d | mbp-decode -m 2>/dev/null)
 	echo found image, type $COVER_TYPE \(${COVER_TYPES[$COVER_TYPE]}, $MIME_TYPE\)
