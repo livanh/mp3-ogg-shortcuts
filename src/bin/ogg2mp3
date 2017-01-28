@@ -3,7 +3,7 @@
 INFILE="$1"
 BASENAME=${1%.*}
 OUTFILE=$BASENAME.mp3
-TMPDIR=/tmp/.ogg2mp3-$(dd if=/dev/urandom bs=1 count=2 status=none | od -A n -t x2 |cut -d ' ' -f 2)
+TMPDIR="$(mktemp -d -t .ogg2mp3-XXXXXX)"
 
 if [ -f "$OUTFILE" ]; then exit 0; fi
 
