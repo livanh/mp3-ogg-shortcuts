@@ -12,18 +12,18 @@ mkfifo "$TMPDIR/fifo.wav"
 oggdec "$INFILE" -o "$TMPDIR/fifo.wav" | lame -V2 "$TMPDIR/fifo.wav" "$OUTFILE"
 
 # Copy vorbis comment tags, if available
-TITLE=$(vorbiscomment "$INFILE" | grep --text title= | cut -d = -f 2-)
-ARTIST=$(vorbiscomment "$INFILE" | grep --text artist= | cut -d = -f 2-)
-ALBUM=$(vorbiscomment "$INFILE" | grep --text album= | cut -d = -f 2-)
-TRACKNUMBER=$(vorbiscomment "$INFILE" | grep --text tracknumber= | cut -d = -f 2-)
-GENRE=$(vorbiscomment "$INFILE" | grep --text genre= | cut -d = -f 2-)
-YEAR=$(vorbiscomment "$INFILE" | grep --text date= | cut -d = -f 2-)
-COMMENT=$(vorbiscomment "$INFILE" | grep --text comment= | cut -d = -f 2-)
-COPYRIGHT=$(vorbiscomment "$INFILE" | grep --text copyright= | cut -d = -f 2-)
-PUBLISHER=$(vorbiscomment "$INFILE" | grep --text publisher= | cut -d = -f 2-)
+TITLE=$(vorbiscomment "$INFILE" | grep -i --text title= | cut -d = -f 2-)
+ARTIST=$(vorbiscomment "$INFILE" | grep -i --text artist= | cut -d = -f 2-)
+ALBUM=$(vorbiscomment "$INFILE" | grep -i --text album= | cut -d = -f 2-)
+TRACKNUMBER=$(vorbiscomment "$INFILE" | grep -i --text tracknumber= | cut -d = -f 2-)
+GENRE=$(vorbiscomment "$INFILE" | grep -i --text genre= | cut -d = -f 2-)
+YEAR=$(vorbiscomment "$INFILE" | grep -i --text date= | cut -d = -f 2-)
+COMMENT=$(vorbiscomment "$INFILE" | grep -i --text comment= | cut -d = -f 2-)
+COPYRIGHT=$(vorbiscomment "$INFILE" | grep -i --text copyright= | cut -d = -f 2-)
+PUBLISHER=$(vorbiscomment "$INFILE" | grep -i --text publisher= | cut -d = -f 2-)
 #CONTACT=$(vorbiscomment "$INFILE" | grep --text WCOM= | cut -d = -f 2-)
-LICENSE=$(vorbiscomment "$INFILE" | grep --text license= | cut -d = -f 2-)
-WEBSITE=$(vorbiscomment "$INFILE" | grep --text website= | cut -d = -f 2-)
+LICENSE=$(vorbiscomment "$INFILE" | grep -i --text license= | cut -d = -f 2-)
+WEBSITE=$(vorbiscomment "$INFILE" | grep -i --text website= | cut -d = -f 2-)
 
 mid3v2 -t "$TITLE" -a "$ARTIST" -A "$ALBUM" -T "$TRACKNUMBER" -g "$GENRE" -y "$YEAR" -c "$COMMENT" "$OUTFILE" --TCOP "$COPYRIGHT" --TPUB "$PUBLISHER" --WCOP "$LICENSE" --WOAS "$WEBSITE"
 
