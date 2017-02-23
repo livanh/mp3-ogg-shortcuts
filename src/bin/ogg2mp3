@@ -21,7 +21,6 @@ YEAR=$(vorbiscomment "$INFILE" | grep -i --text date= | cut -d = -f 2-)
 COMMENT=$(vorbiscomment "$INFILE" | grep -i --text comment= | cut -d = -f 2-)
 COPYRIGHT=$(vorbiscomment "$INFILE" | grep -i --text copyright= | cut -d = -f 2-)
 PUBLISHER=$(vorbiscomment "$INFILE" | grep -i --text publisher= | cut -d = -f 2-)
-#CONTACT=$(vorbiscomment "$INFILE" | grep --text WCOM= | cut -d = -f 2-)
 LICENSE=$(vorbiscomment "$INFILE" | grep -i --text license= | cut -d = -f 2-)
 WEBSITE=$(vorbiscomment "$INFILE" | grep -i --text website= | cut -d = -f 2-)
 
