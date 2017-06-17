@@ -1,8 +1,8 @@
 #!/bin/bash
 
 INFILE="$1"
-BASENAME=${1%.*}
-OUTFILE=$BASENAME.ogg
+BASENAME="${1%.*}"
+OUTFILE="$BASENAME.ogg"
 TMPDIR="$(mktemp -d -t .mp32ogg-XXXXXX)"
 
 if [ -f "$OUTFILE" ]; then exit 0; fi
@@ -16,6 +16,9 @@ ALBUM=$(mid3v2 "$INFILE" | grep --text TALB= | cut -d = -f 2-)
 TRACKNUMBER=$(mid3v2 "$INFILE" | grep --text TRCK= | cut -d = -f 2-)
 GENRE=$(mid3v2 "$INFILE" | grep --text TCON= | cut -d = -f 2-)
 YEAR=$(mid3v2 "$INFILE" | grep --text TDRL= | cut -d = -f 2-)
+if [ "$YEAR" == "" ]; then
+	YEAR=$(mid3v2 "$INFILE" | grep --text TYER= | cut -d = -f 2-)
+fi
 COMMENT=$(mid3v2 "$INFILE" | grep --text COMM= | grep --text -v "ID3 v1" | cut -d = -f 4-)
 COPYRIGHT=$(mid3v2 "$INFILE" | grep --text TCOP= | cut -d = -f 2-)
 PUBLISHER=$(mid3v2 "$INFILE" | grep --text TPUB= | cut -d = -f 2-)
