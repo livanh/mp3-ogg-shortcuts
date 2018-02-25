@@ -7,7 +7,6 @@ TMPDIR="$(mktemp -d -t .ogg2mp3-XXXXXX)"
 
 if [ -f "$OUTFILE" ]; then exit 0; fi
 
-mkdir "$TMPDIR"
 mkfifo "$TMPDIR/fifo.wav"
 oggdec "$INFILE" -o "$TMPDIR/fifo.wav" | lame -V2 "$TMPDIR/fifo.wav" "$OUTFILE"
 
