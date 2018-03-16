@@ -1,0 +1,18 @@
+Source: mp3-ogg-shortcuts
+Maintainer: Livanh <livanh@bulletmail.org>
+Section: sound
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 9)
+
+Package: mp3-ogg-shortcuts
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, sox, ffmpeg, eyed3, imagemagick, vorbis-tools, mbp-tools
+Priority: optional
+Section: sound
+Description: Shortcuts for conversion between MP3 and OGG Vorbis
+ mp32ogg converts an MP3 file into an OGG Vorbis file.
+ .
+ ogg2mp3 converts an OGG Vorbis file into an MP3 file.
+ .
+ Both appear as options in the file manager's right-click menu and require no user interaction. Metadata are preserved as much as possible during conversion.
