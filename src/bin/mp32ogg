@@ -53,7 +53,7 @@ COVERTYPES=(
 	PUBLISHER_LOGO
 )
 
-eyeD3 --write-images "$TMPDIR" "$INFILE"
+eyeD3 --write-images "$TMPDIR" "$(readlink -f "$INFILE")"
 COVERINDEX=0
 for i in ${COVERTYPES[@]}; do
 
