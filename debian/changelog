@@ -1,4 +1,10 @@
-mp3-ogg-shortcuts (0.1.2-1) UNRELEASED; urgency=low
+mp3-ogg-shortcuts (0.1.2-2) testing; urgency=medium
+
+  * Changed email address
+
+ -- Livanh <livanh@protonmail.com>  Sat, 08 Dec 2018 12:58:45 +0100
+
+mp3-ogg-shortcuts (0.1.2-1) testing; urgency=low
 
   [ Livanh ]
   * Initial release.
